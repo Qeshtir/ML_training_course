@@ -62,6 +62,19 @@ def sum_as_ints(elems):
             continue
     return result
 
+# через while
+def sum_as_ints(elems):
+    result = 0
+    i = 0
+    while i <= len(elems) - 1:
+        try:
+            result += int(elems[i])
+            i += 1
+        except ValueError:
+            i += 1
+
+    return result
+
 # task 7
 def reversed_(array):
     rv = []
