@@ -1163,3 +1163,163 @@ j.dumps({"a": True})  # принимает на вход словарь, а на
 
 # endregion
 
+# region 14 Jupyter basics
+"""
+    esc — выйти из режима редактирования ячейки
+    b (как _below_) — создать ячейку внизу с типом code
+    a (как _above_) — создать ячейку сверху с типом code
+    y — сделать выбранной ячейку (это ячейка, вокруг которой зеленая рамка) тип code
+    m (как _markdown_) — сделать выбранной ячейке тип text
+    dd (как _delete_, только дважды) — удалить выбранную ячейку
+    x — удалить ячейку и сохранить во временную память (не Ctrl + C — у Jupyter на ячейки отдельный буфер обмена)
+    c — скопировать ячейку и сохранить во временную память
+    v — вставить ячейку из временной памяти под текущей
+    V (shift + v) — вставить ячейку из временной памяти над текущей
+    Ctrl + Enter — исполнить текущую ячейку
+    Shift + Enter — исполнить текущую ячейку и выбрать ячейку ниже
+    стрелка вниз — выбрать ячейку ниже
+    стрелка вверх — выбрать ячейку выше
+    
+Магические команды (англ. _magic commands_) — это дополнительная функциональность Jupyter, которая дает возможность менять поведение кода, добавлять подсчеты и чуть-чуть упрощает работу.
+
+Существует два типа магических команд:
+
+    Строчные, обозначенные одним символом %. (Команда работает на одной строке кода)
+    Ячеечные, обозначенные двойным символом % %. (Команда работает над всей ячейкой)
+
+Посмотреть доступные магические команды можно с помощью %lsmagic. Возможный результат работы команды:
+Available line magics:
+%alias  %alias_magic  %autoawait  %autocall  %automagic  %autosave  %bookmark  %cat  %cd  %clear  %colors  %conda
+%config  %connect_info  %cp  %debug  %dhist  %dirs  %doctest_mode  %ed  %edit  %env  %gui  %hist  %history
+%killbgscripts  %ldir  %less  %lf  %lk  %ll  %load  %load_ext  %loadpy  %logoff  %logon  %logstart
+%logstate  %logstop  %ls  %lsmagic  %lx  %macro  %magic  %man  %matplotlib  %mkdir  %more  %mv  %notebook
+%page  %pastebin  %pdb  %pdef  %pdoc  %pfile  %pinfo  %pinfo2  %pip  %popd  %pprint  %precision  %prun  %psearch
+%psource  %pushd  %pwd  %pycat  %pylab  %qtconsole  %quickref  %recall  %rehashx  %reload_ext  %rep  %rerun  %reset
+%reset_selective  %rm  %rmdir  %run  %save  %sc  %set_env  %store  %sx  %system  %tb  %time  %timeit  %unalias
+%unload_ext  %who  %who_ls  %whos  %xdel  %xmode
+
+Available cell magics:
+%%!  %%HTML  %%SVG  %%bash  %%capture  %%debug  %%file  %%html  %%javascript  %%js  %%latex  %%markdown
+%%perl  %%prun  %%pypy  %%python  %%python2  %%python3  %%ruby  %%script  %%sh  %%svg  %%sx  %%system
+%%time  %%timeit  %%writefile
+
+Automagic is ON, % prefix IS NOT needed for line magics.
+
+%%time
+# Cell magic - это магия, которая действует на всю ячейку
+# cell magic обязательно должна быть первой строкой в ячейке
+for i in range(int(1e6)):
+    a = i**2
+
+# Через ! можно сказать jupyter, что всю команду надо выполнить
+# в терминале системы (откуда был запущен ноутбук)
+# Jupyter поймет, что это не Python код
+!pip install notebook
+
+import numpy as np
+%timeit np.array([i**2 for i in range(int(1e6))])
+Output: 719 ms ± 48.1 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Параметры timeit можно настраивать
+
+Autoreload
+%load_ext autoreload
+%autoreload 2
+
+Команда делает так, чтобы все модули пере-импортировались перед тем, как запускать код.
+
+.pyenv ?
+
+За выполнение кода Python в Jupyter отвечает ядро (англ. _kernel_). Нам здесь нужно знать две вещи: ядро можно менять 
+на другое (скажем, то, где больше установленных пакетов) и ядро может зависать.
+
+Ядро содержит в ОЗУ все когда-либо объявленные переменные ноутбука и может «жить» долго. В больших проектах это может 
+привести к тому, что ядро станет занимать очень много ОЗУ.
+
+Если вам кажется, что ядро «раздулось», до больших размеров, то его можно перезапустить кнопкой, находящейся справа от 
+кнопки прерывания. Перезапуск ядра приведет к тому, что все переменные удалятся и все расчеты потеряются. Будьте готовы.
+
+https://ipython.readthedocs.io/en/stable/interactive/magics.html
+"""
+# endregion
+
+# region 15 Pandas, Numpy, Matplotlib overview
+# Numpy - numeric python
+import numpy as np
+
+# Создаем матрицы
+a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+print(a)
+# Обычные умножения делаются поэлементно. Немного непривычно для математиков
+b = np.array([[-1, -2, -3], [-4, -5, -6], [-7, -8, -9], [-10, -11, -12]])
+print(a * b)
+# матричные умножения делаются через np.dot
+np.dot(a, b.T)
+
+import pandas as pd  # чаще всего импортируют под именем pd
+
+"""
+Библиотека для работы с табличными данными. Подробнее познакомимся в следующем уроке, здесь же пройдемся обзорно.
+Основные компоненты pandas – Series и DataFrame.
+Series – что-то вроде столбца с данными, DataFrame – это таблица, созданная из столбцов Series.
+"""
+
+df = pd.DataFrame([("Python", 6), ("Python", 8), ("ML", 20)],
+                  columns=['block', 'lessons'])
+print(df)
+
+# Можно фильтровать записи через логические условия
+print(df[df['block'] == 'Python'])  # вернёт список индексов, который будет подставлен в DF
+
+# создавать колонки
+df["#"] = range(df.shape[0])
+print(df)
+
+# продвинуто создавать
+result = []
+for i in range(1, df.shape[0] + 1):
+    result.append(f'course_{i}')
+# list comprehension
+# df['#'] = [f"course_{i}" for i in range(1, df.shape[0] + 1)]
+df['#'] = result
+print(df)
+
+# Сгруппировать по колонке "block" и вывести сумму в пределах группы для каждой колонки
+# Причём суммирование произойдёт только по числовым колонкам
+df.groupby('block').sum()
+
+# Сохраним результат в файл
+df.to_csv('1.csv', index=False)  # При это сохранит столбец с нумерацией. При чтении нумерация выведется как
+                                            # наименование колонки. Можно удалить колонку индекса при записи.
+
+# Прочитаем файл
+df_1 = pd.read_csv('1.csv', index_col=0)  # index_col убьёт колоку с нумерацией
+print(df_1)
+
+# %matplotlib inline
+import matplotlib.pyplot as plt
+
+x = np.arange(-10, 11, 0.5)
+y = x**2
+
+plt.figure(figsize=(16, 9))  # размер графика
+plt.plot(x, y)
+plt.grid()
+plt.title("График $y = x^2$")  # LaTeX
+plt.xlabel("x")
+plt.ylabel("y")
+plt.savefig("1.pdf")
+
+plt.plot((0, 1, 2, 3, 4, 5, 6, 7), (0, 3, 1, 2, 1, 5, 4, 0))
+plt.show()
+
+plt.scatter([0, 1, 2, 3, 4 , 5], [0, 1, 2, 3, 4 , 5])
+plt.show()
+
+plt.hist([1, 1, 2, 3, 5, 5], bins=50)
+plt.grid()
+
+plt.bar([6, 7, 8], [10, 15, 21])
+plt.show()
+# endregion
+
+
