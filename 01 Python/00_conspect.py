@@ -1607,3 +1607,270 @@ pd.read_excel('rents_by_week.xlsx', engine='openpyxl').head(5)
 
 # endregion
 
+# region 17 Database basics
+"""
+База данных (БД) – это организованное хранение информационных ресурсов в виде интегрированной совокупности файлов, 
+обеспечивающее удобное взаимодействие между ними и быстрый доступ к данным.
+
+Система управления базами данных или СУБД (англ. Database Management System, сокр. DBMS) — совокупность языковых и 
+программных средств, предназначенная для создания, ведения и совместного использования баз данных многими 
+пользователями.
+"""
+"""
+Транзакции – операции обработки данных, которые переводят базу из одного состояния в другое. 
+
+Транзакции подчиняются аббревиатуре ACID – атомарность, согласованность, изолированность и стойкость. 
+
+    Атомарность – гарантирует, что никакая транзакция не будет зафиксирована в системе частично
+    Согласованность – каждая успешная транзакция по определению фиксирует только допустимые результаты.
+    Изолированность – при параллельном выполнении транзакции никак не влияют друг на друга.
+    Стойкость – если транзакция выполнена, то результат будет точно сохранен вне зависимости от проблем с оборудованием.
+"""
+
+"""
+select * from members;
+select distinct firstname from members;
+
+SELECT * FROM members
+WHERE surname = 'Smith' OR firstname = 'David'; -- '' - строка
+
+SELECT "name", membercost FROM facilities -- "" - упоминание в значении или имени колонки
+WHERE membercost IN (0, 5, 10)
+LIMIT 10;          -- через LIMIT можно задать количество строк для вывода
+"""
+
+"""
+SELECT surname, COUNT(surname) 
+FROM members 
+WHERE recommendedby IS NOT NULL  -- проверка на прочерк, как в Python
+GROUP BY surname;
+
+Нельзя в SELECT выбирать колонки, по которым не было группировки в GROUP BY
+Ещё одной важной особенностью языка SQL является последовательность выполнения запросов. Так, оператор GROUP BY может
+быть использован только после WHERE, а не наоборот. Если нам нужно применить фильтр по уже сгруппированным данным, 
+применяется оператор HAVING.
+
+Так не сработает:
+SELECT surname, COUNT(surname) 
+FROM members
+WHERE recommendedby IS NOT NULL AND COUNT(surname) > 1 -- здесь ещё нет агрегации, потому что не было группировки
+GROUP BY surname;
+
+А вот так - сработает:
+SELECT surname, COUNT(surname) 
+FROM members
+WHERE recommendedby IS NOT NULL
+GROUP BY surname
+HAVING COUNT(surname) > 1; -- вот наша фильтрация на агрегат
+
+HAVING может работать с агрегатами колонок, не имеющими агрегации в SELECT
+SELECT surname, COUNT(firstname) 
+FROM members
+WHERE recommendedby IS NOT NULL
+GROUP BY surname
+HAVING COUNT(surname) > 1;
+
+SQL поддерживает следующие агрегатные функции: 
+
+MIN / MAX - узнать минимальное/максимальное значение по группе
+SUM - суммировать все значения в группе
+AVG - найти среднее значение по группе
+COUNT - посчитать количество элементов группе
+
+Важно отметить, что в отличии от python, в SQL агрегатные функции указываются перед группировкой, сразу после SELECT.
+Агрегатные функции могут использоваться и без GROUP BY,  но тогда запрос SELECT не должен содержать простых столбцов 
+(кроме как столбцов, служащих аргументами агрегатной функции). 
+Результатом вычислений любой агрегатной функции является константное значение, отображаемое в отдельном столбце 
+результата.
+Аргументу агрегатной функции может предшествовать одно из двух возможных ключевых слов:
+ALL -  вычисления выполняются над всеми значениями столбца (значение по умолчанию, указывать не обязательно).
+DISTINCT - отбирает только уникальные значения столбца. 
+
+Например, 
+SELECT
+    COUNT(DISTINCT surname)  --подсчитает число уникальных фамилий в столбце
+FROM members;
+
+SELECT COUNT('surname') AS "total_members" --выведет количество участников в колонку с названием total_members
+FROM members;
+
+ORDER BY — позволяет сортировать значения при выводе таблицы. По умолчанию сортировка происходит по возрастанию (ASC). 
+Для того, чтобы упорядочить значения от большего к меньшему, нужно добавить DESC (англ. descending — убывающий):
+SELECT * 
+FROM bookings
+ORDER BY starttime DESC;
+
+
+Резюмируя вышесказанное, рассмотрим общую структуру запроса:
+SELECT   --столбцы или * для выбора всех столбцов; обязательный запрос
+FROM     --таблица; обязательный запрос
+WHERE    -- условие/фильтрация; необязательный запрос
+GROUP BY --столбец, по которому хотим сгруппировать данные; необязательный запрос
+HAVING   --условие/фильтрация на уровне сгруппированных данных; необязательно
+ORDER BY --столбец, по которому хотим отсортировать вывод; необязательно
+"""
+
+"""
+JOIN – одна из наиболее часто используемых команд в SQL-синтаксисе, существующий только в реляционных базах данных. 
+Предназначена для соединения двух или более таблиц из базы данных по ключу, который присутствует в обеих таблицах. 
+Перед ключом ставится оператор ON.
+
+SELECT f.name, b.starttime
+FROM bookings b -- через пробел дали короткое имя (alias) b, чтобы в дальнейшем обращаться более коротким способом
+JOIN facilities f on f.facid = b.facid;
+
+SELECT f.name, b.starttime, m.firstname, m.surname
+FROM bookings b
+JOIN facilities f on f.facid = b.facid
+JOIN members m on b.memid = m.memid
+WHERE firstname = 'David' AND DATE(b.starttime) > '2010-01-01';
+
+
+В зависимости от необходимого алгоритма формирования таблицы, к оператору JOIN можно подставлять ключевые слова: 
+INNER, CROSS,FULL, LEFT, RIGHT. По умолчанию (если нет ключевых слов) используется INNER JOIN.
+ 
+LEFT JOIN
+
+Берет все данные из FROM, затем берутся соответствующе данные (не все!) в таблице после JOIN. Там, где нет результатов 
+в таблице после JOIN, выставляет NULL (символ пропуска значения).
+
+SELECT f.name, b.starttime
+FROM bookings b
+LEFT JOIN facilities f on f.facid = b.facid; -- Берутся все площадки. Если для какого-нибудь bookings по facid не 
+-- найдется площадка в facilities,
+-- то f.name будет заполнен NULL
+ 
+
+RIGHT JOIN
+
+Аналогичен LEFT JOIN, только теперь наоборот: сначала берутся все данные из таблицы в RIGHT JOIN, затем берутся 
+соответствующие данные из таблицы в FROM (не все). Там, где нет соответствующих значений в таблице FROM, ставятся NULL:
+
+SELECT f.name, b.starttime
+FROM bookings b
+RIGHT JOIN facilities f on f.facid = b.facid; -- Берутся все площадки. Если для какого-нибудь facid из facilities не 
+-- найдется facid в bookings,
+-- то b.starttime будет заполнен NULL.
+-- В любом случае будут возвращены все записи из facilites!
+
+INNER JOIN
+
+Выдаст в результате только пересечения обеих таблиц, то есть записи, присутствующие в обеих таблицах. 
+По сути представляет собой комбинацию последовательных запросов LEFT JOIN и RIGHT JOIN.
+
+SELECT f.name, b.starttime
+FROM bookings b
+INNER JOIN facilities f on f.facid = b.facid;-- Возьмутся только те bookings, на которых найдется площадка в 
+-- таблице facilities
+-- и только те площадки, на которые найдется хотя бы одна запись в bookings.
+-- Самый "узкий" из всех JOIN
+
+FULL OUTER JOIN
+
+Самый широкий JOIN. Берет все записи из обеих таблиц. Если нашлось соотвествие, то заполняет колонки, иначе помещает 
+туда NULL.
+
+SELECT f.name, b.starttime
+FROM bookings b
+FULL OUTER JOIN facilities f on f.facid = b.facid;-- Возьмутся все записи из bookings и все записи из facilities.
+-- Там, где возможно установить соответствие, оно будет установлено.
+-- Где соответствие провести нельзя, будет помещен NULL,
+-- причем NULL может уйти как в таблицу слева, так и справа!
+-- Самый "широкий" из всех JOIN
+"""
+
+
+import psycopg2
+
+connection = psycopg2.connect(    # connection - это объект, который отвечает за соединение с БД
+    database='exercises',         # database - это база данных (именно база, не СУБД)
+    host='localhost',             # это говорит, что СУБД работает на моем компьютере
+    user='postgres',              # имя пользователя
+    password='password'           # пароль
+    # port=5432,                  # порт не указываем, по умолчанию 5432
+)
+cursor = connection.cursor()      # cursor - это объект, который отвечает за взаимодействие с БД
+# Делаем запрос
+cursor.execute("""                   
+SELECT *
+FROM cd.bookings -- cd есть схема, bookings есть таблица
+-- синтаксис "схема.таблица"
+LIMIT 10
+""")
+results = cursor.fetchall()       # Получаем результаты (fetchall() - "получить всё")
+results                           # Это будет стандартный Python-объект. Не очень удобно, но работает
+
+cursor.close()
+connection.close()
+
+import pandas as pd
+
+# второй аргумент будет специальная строка. Для PostgreSQL имеет вид:
+# postgresql://имя:пароль@хост:порт/база_данных
+conn_uri = "postgresql://postgres:password@localhost/exercises"
+
+df = pd.read_sql(
+    "SELECT * FROM cd.bookings",             # первый аргумент - SQL запрос
+    conn_uri                                     # наша строка с подключением
+)
+df.head()
+
+df_1 = pd.read_sql(
+    """
+    SELECT 
+      b.starttime,
+      b.slots,
+      m.firstname,
+      m.telephone
+    FROM cd.bookings b
+    INNER JOIN cd.members m
+    ON b.memid = m.memid
+    """,
+    conn_uri,
+    # можно явно указать, в каких колонках даты, их превратят в pd.datetime
+    parse_dates=["starttime"]
+)
+df_1.sample(10, random_state=42) # выведет 10 выбранных случайным образом записей
+
+# Тут все операции осуществляются в блоке SQL:
+pd.read_sql(
+    """
+    SELECT b.starttime, COUNT(m.firstname)
+    FROM cd.bookings b
+    INNER JOIN cd.members m
+    ON b.memid = m.memid
+    GROUP BY b.starttime    
+    """,
+    conn_uri,
+    # можно явно указать, в каких колонках даты, их превратят в pd.datetime
+    parse_dates=["starttime"])
+
+# А тут мы сначала выгрузили все необходимые данные из БД в формат датафрейма и после применили к ним функцию агрегации:
+df_1 = pd.read_sql(
+    """
+    SELECT 
+      b.starttime,
+      b.slots,
+      m.firstname,
+      m.telephone
+    FROM cd.bookings b
+    INNER JOIN cd.members m
+    ON b.memid = m.memid
+    """,
+    conn_uri,
+    parse_dates=["starttime"]
+)
+df_1.groupby('starttime')['firstname'].count()
+
+# С помощью pandas можно не только читать таблицу, но и записывать данные обратно. Для этого используется функция to_sql:
+df.to_sql(
+   "new_table",                    # имя таблицы, куда писать данные
+    conn_uri,                      # строка для подключения к БД
+    schema="cd",                   # Схема, в которой создать таблицу
+    if_exists='replace'            # что делать, если уже существует. Одно из трех значений:
+   )                               # 'fail' - выдать ошибку
+                                   # 'replace' - снести и создать с новыми данными
+                                   # 'append' - дополнить датафреймом, не трогая существующие данные
+
+# endregion
+
