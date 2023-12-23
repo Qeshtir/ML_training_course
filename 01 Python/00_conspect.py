@@ -2410,7 +2410,7 @@ git push --all
 
 Полезные команды VIM
 Insert - редактировать файл
-Esc - выйти в окружение с коммандами из редактирования
+Esc - выйти в окружение с командами из редактирования
 Shift + ; - открыть prompt
 w - записать файл
 q - выйти из VIM
@@ -2426,4 +2426,57 @@ file - изменение имени файла
 5.     Отправка тэга в репозиторий git push --tag
 
 '''
+# endregion
+
+
+# region 20 Backend. FastAPI
+# all code is in appML.py
+# appML.py is a Unit 09 continuous task
+"""
+FAST API понимает, что словарь в функции следует преобразовывать в JSON и возвращать в JSON
+
+Dependency Injection - способ прописать заранее объекты, которые необходимы для дальнейшей работы 
+(dependencies - зависимости). После этого система (в нашем случае FastAPI) сможет использовать (inject) эти зависимости.
+Данный метод позволяет избежать повторения кода.
+
+Для имплементации dependency Injection используется класс Depends(), которому в качестве аргумента передается функция.
+
+from fastapi import Depends, FastAPI
+
+app = FastAPI()
+
+async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+@app.get("/items/")
+async def read_items(commons: dict = Depends(common_parameters)):
+    return commons
+    
+    
+http://localhost:8000/docs - локальная документация
+"""
+cursor.fetchone()  # 1 element
+cursor.fetchall()  # array
+"""result = cursor.fetchall()
+    if result == []:
+        raise HTTPException(404, "user not found")
+    else:
+        return result
+result = cursor.fetchone()
+    if not result:
+        raise HTTPException(404, "user not found")
+    else:
+        return result"""
+
+"""
+Функция post/{id}
+cursor.fetchone() возвращает dict-объект, который может иметь любые ключи.
+PostResponse попытается из этого dict-объект создать объект класса PostResponse, валидируя при этом входные данные (т.е. данные из словаря).
+Если ошибок валидации нет, то объект класса создается, затем тут же передается в return у функции-обработчика endpoint.
+FastAPI видит, что в return ушел объект из модели pydantic и понимает, что его надо сериализировать в JSON (превратить в JSON).
+FastAPI делает сериализацию, работая с провалидированным объектом.
+FastAPI возвращает ответ на запрос в формате JSON.
+Пользователь получает данные строго в том формате, в каком они описаны в классе PostReponse.
+"""
+
 # endregion
