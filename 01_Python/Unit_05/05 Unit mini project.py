@@ -1,5 +1,5 @@
 import pandas as pd
-playstore = pd.read_csv('.\\01 Python\\05 Unit\\playstore.csv')
+playstore = pd.read_csv('.\\01_Python\\Unit_05\\playstore.csv')
 
 # task 1
 data_head = playstore.head(3)
