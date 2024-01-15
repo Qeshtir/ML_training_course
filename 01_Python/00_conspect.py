@@ -1325,7 +1325,7 @@ plt.show()
 
 # region 16 Pandas
 import pandas as pd
-d_f = pd.read_csv('.\\01_Python\\Unit_05\\train.csv')
+d_f = pd.read_csv('.\\01_Python\\Unit_05_Pandas\\train.csv')
 
 d_f.head(7)
 d_f.describe()
@@ -1343,7 +1343,7 @@ d_f.dtypes
 (тип object). Кроме того, pandas не всегда правильно определяет тип данных в колонке при чтении, поэтому иногда его 
 нужно указывать явным образом. Это можно сделать непосредственно при чтении через функцию read_csv()
 """
-d_f = pd.read_csv('.\\01_Python\\Unit_05\\train.csv', dtype={'season': int})
+d_f = pd.read_csv('.\\01_Python\\Unit_05_Pandas\\train.csv', dtype={'season': int})
 
 # Можно фильтровать данные через квадратные скобки
 d_f[d_f['workingday'] == 0]  # получить все поездки за выходные
@@ -2491,7 +2491,7 @@ FastAPI возвращает ответ на запрос в формате JSON
 # endregion
 
 # region 22 Airflow
-# Look into Unit_11 Airflow file
+# Look into Unit_11_Airflow file
 """
 В Airflow имеется логическая дата (передается как ds). Она говорит, какую дату обрабатывает конкретный запуск.
 
@@ -2514,5 +2514,33 @@ XCom (сокращенно от Cross Communication). XCom передает да
 """
 
 
+# endregion
+
+# region 23 Useful things in overall programming
+"""
+Пример кода с хорошими практиками в локальном проекте PythonBestPractices
+1. Фиксируйте версии библиотек.
+2. Храните логины и пароли к БД в переменных окружения. Используйте .env файлы и библиотеку dotenv.
+
+def get_db():
+    with psycopg2.connect(
+        user="robot-startml-ro",
+        password="pheiph0hahj1Vaif",
+        host="postgres.lab.karpov.courses",
+        port=6432,
+        database="startml"
+    ) as conn:
+        return conn
+        
+        # Очень небезопасно для открытого кода
+
+
+3. Защититесь от SQL инъекций.
+4. Вынесите настройки в конфиг-файлы.
+5. Разделяйте проект на файлы, обращайтесь к файлам используя Path.
+6. Следите за Pythonpath.
+7. Поддерживайте идемпотентность кода.
+7.1 Константы называйте заглавными буквами.
+"""
 # endregion
 
