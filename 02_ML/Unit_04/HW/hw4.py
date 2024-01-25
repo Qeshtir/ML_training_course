@@ -79,8 +79,8 @@ class GradientDescentMse:
 
         :return: вектор-градиент, т.е. массив, содержащий соответствующее количество производных по каждой переменной : np.ndarray
         """
-        ### Your code is here
-        result = []
+
+        """result = []
         scalar_value = np.dot(self.samples, self.beta.reshape(-1, 1)).ravel()
         scalar_value = (scalar_value - self.targets).values
         ### Возьмем столбик со значениями 1 признака
@@ -91,7 +91,13 @@ class GradientDescentMse:
         ### Умножим каждый объект на соответствующее значение признака
             result_value = scalar_value * d_i1
             result = np.append(result, (2 * np.mean(result_value)))
-        return result
+        return result"""
+        ### Your code is here
+
+        shift = np.dot(self.samples, self.beta) - self.targets.values
+        derivatives = 2 * np.dot(shift, self.samples) / self.samples.shape[0]
+
+        return derivatives
 
     def iteration(self):
         """
