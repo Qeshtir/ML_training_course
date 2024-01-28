@@ -2544,3 +2544,45 @@ def get_db():
 """
 # endregion
 
+# region 24 Useful tricks in data analysis
+data = pd.read_csv('ks_crashed.csv')
+
+# Заполнить пропуски средним
+mean = data['Цель в долларах'].mean()
+data['Цель в долларах'].fillna(mean)
+
+# Заполнить пропуски самым популярным классом
+popular_category = data['Главная категория'].value_counts().index[0]
+data['Главная категория'] = data['Главная категория'].fillna(popular_category)
+
+# Заполнить пропуски новой категорией
+data['Валюта'] = data['Валюта'].fillna('Неизвестная валюта')
+
+# Заполнить пропуски, ориентируясь на похожие объекты
+grouped_means = data.groupby('Главная категория')['Цель в долларах'].transform("mean")
+data['Цель в долларах'] = data['Цель в долларах'].fillna(grouped_means)
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Зафиттим наши данные в TfidfVectorizer
+data = data.dropna()
+tfidf = TfidfVectorizer()
+tfidf.fit(data['Название'])
+
+### Посмотрим как выглядит наш первый документ (первое описание)
+first_document = data['Название'][0]
+
+### Векторизуем данное описание через tf-idf
+tfidf.transform([first_document])
+tfidf.transform([first_document]).todense()
+tfidf.get_feature_names()
+
+### Посмотрим на содержимое этого вектора
+df = pd.DataFrame(tfidf.transform([first_document]).T.todense(),
+                  index=tfidf.get_feature_names(),
+                  columns=['tfidf'])
+
+
+
+# endregion
+
