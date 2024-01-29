@@ -2581,7 +2581,95 @@ tfidf.get_feature_names()
 df = pd.DataFrame(tfidf.transform([first_document]).T.todense(),
                   index=tfidf.get_feature_names(),
                   columns=['tfidf'])
+# endregion
 
+# region 25 MLPractice
+"""
+Очень много полезной инфы в 9-м уроке.
+
+Наличие временной структуры в данных. 
+В таком случае привычную кросс-валидацию проводить нельзя, так как в ходе такой операции получится, что будут 
+использоваться данные “из будущего” для предсказания прошлого.
+
+Поэтому при валидации моделей с временной структурой важно, чтобы мы обучали модель на ранних и тестировали 
+предсказание на более поздних данных.
+
+Для этого существует модицифицованный вариант кросс-валидации - time-series split validation.
+"""
+from sklearn.model_selection import TimeSeriesSplit
+
+splitter = TimeSeriesSplit(n_splits=4)
+
+
+from sklearn.model_selection import cross_validate
+
+model = LinearRegression()
+
+cv_result = cross_validate(model, X, Y,
+                           scoring='neg_mean_squared_error',
+                           cv=splitter, return_train_score=True)
+
+# Отмасштабировать данные при использовании модели регуляризации можно с помощью класса Pipeline
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+pipe = Pipeline([('scaler', StandardScaler()), ('Lasso', Lasso(max_iter=100000))])
+pipe.fit(X, Y)
+
+print(pipe.predict(X.head(1)))
+
+cv_result_pipe = cross_validate(pipe, X, Y,
+                                scoring='neg_mean_squared_error',
+                                cv=splitter, return_train_score=True)
+
+
+# Чтобы подобрать подходящий параметр регуляризации воспользуемся еще одним классом библиотеки sklearn - GridSearchCV,
+# который перебирает все возможные параметры и отбирает их наилучшие комбинации
+
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    "Lasso__alpha": alphas
+}
+
+### Передадим в GridSearchCV
+alphas = np.linspace(start=0.01, stop=1, num=30)
+
+search = GridSearchCV(pipe, param_grid,
+                      cv=splitter, scoring='neg_mean_squared_error')
+
+search.fit(X, Y)
+
+print(f"Best parameter (CV score={search.best_score_:.5f}):")
+print(search.best_params_)
+
+# Чтобы очистить данные от выбросов и посмотреть, как это отразится на качестве модели выполним следующий код:
+top_quantile = data['log_price_doc'].quantile(0.975)
+low_quantile = data['log_price_doc'].quantile(0.025)
+
+data = data[(data['log_price_doc']>low_quantile)&(data['log_price_doc']<top_quantile)]
+
+X_new, Y_new = data.drop('log_price_doc', axis=1), data['log_price_doc']
+
+# Отказ от выбросов работает только если оцениваете среднее значение (цену, прогноз по типичному сценарию) в задаче.
+# Если же мы ожидаем в проде значительное количество выбросов и хотим на них давать адекватные предсказания -
+# выбрасывать их нельзя
+
+# Средневзвешенные ошибки для сегментированных данных:
+n_Occupier = Owner_Occupier.shape[0] #количество объектов для первого типа жилья
+n_Investment = Investment.shape[0]   #количество объектов для второго типа жилья
+
+# Посчитаем доли категорий в общий выборке
+
+share_Occupier = n_Occupier / data.shape[0]
+share_Investment = n_Investment / data.shape[0]
+
+#умножим MSLE полученных моделей на долю соответствующего вида жилья:
+weighted_error_train = share_Occupier * error_Occupier_train + \\
+                       share_Investment * error_Investment_train
+
+weighted_error_test = share_Occupier * error_Occupier_test + \\
+                       share_Investment * error_Investment_test
 
 
 # endregion
