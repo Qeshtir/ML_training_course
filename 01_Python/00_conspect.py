@@ -2674,3 +2674,43 @@ weighted_error_test = share_Occupier * error_Occupier_test + \\
 
 # endregion
 
+# region 26 PR-ROC
+# Получим всевозможные пары FPR, TPR
+
+from sklearn.metrics import roc_curve
+
+fpr, tpr, thresholds = roc_curve(Y_test, pipe.predict_proba(X_test)[:, 1])
+
+# И нарисуем ROC-кривую
+
+from sklearn.metrics import RocCurveDisplay
+
+RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
+
+# Посчитаем ROC-AUC
+
+from sklearn.metrics import auc
+
+auc(fpr, tpr)
+
+# Получим всевозможные пары Precision, Recall
+
+precision, recall, thresholds = precision_recall_curve(Y_test, pipe.predict_proba(X_test)[:, 1])
+
+# И нарисуем PR-кривую
+
+from sklearn.metrics import PrecisionRecallDisplay
+
+PrecisionRecallDisplay(precision=precision, recall=recall).plot()
+
+# Посчитаем PR-AUC
+auc(recall, precision)
+
+
+# Нарисуем калибровочную кривую для модели LR
+
+from sklearn.calibration import CalibrationDisplay
+
+CalibrationDisplay.from_estimator(pipe, X_test, Y_test)
+
+# endregion
