@@ -2431,7 +2431,7 @@ file - изменение имени файла
 # region 20 Backend. FastAPI
 # all code is in appML.py
 # appML.py is a Unit 09 continuous task
-# uvicorn app:app --reload
+# uvicorn app_fc_2:app_fc_2 --reload
 """
 FAST API понимает, что словарь в функции следует преобразовывать в JSON и возвращать в JSON
 
@@ -2443,12 +2443,12 @@ Dependency Injection - способ прописать заранее объек
 
 from fastapi import Depends, FastAPI
 
-app = FastAPI()
+app_fc_2 = FastAPI()
 
 async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
     return {"q": q, "skip": skip, "limit": limit}
 
-@app.get("/items/")
+@app_fc_2.get("/items/")
 async def read_items(commons: dict = Depends(common_parameters)):
     return commons
     
