@@ -24,25 +24,25 @@ class PostResponse(BaseModel):
         orm_mode = True
 
 """
-@app.get("/")
+@app_fc_2.get("/")
 def say_hello():
     return "hello, world"
 """
-"""@app.get("/")
+"""@app_fc_2.get("/")
 def sum_two(a: int, b: int) -> int:
     return a + b"""
 
 
-"""@app.get("/sum_date")
+"""@app_fc_2.get("/sum_date")
 def sum_date(current_date: datetime.date, offset: int):
     return current_date + datetime.timedelta(days=offset)"""
 
 
-"""@app.get("/user/validate")
+"""@app_fc_2.get("/user/validate")
 def sum_date(current_date: datetime.date, offset: int):
     return current_date + datetime.timedelta(days=offset)"""
 
-"""@app.post("/user/validate")
+"""@app_fc_2.post("/user/validate")
 def validate_user(json_file: User):
     logger.info(json_file.dict())
     return f"Will add user: {json_file.name} {json_file.surname} with age {json_file.age}"
