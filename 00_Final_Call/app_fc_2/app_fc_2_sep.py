@@ -30,7 +30,7 @@ def get_model_path(path: str) -> str:
 
 
 def load_models():
-    model_path = get_model_path("/00_Final_Call/app_fc_2/cbm_best.cbm")
+    model_path = get_model_path("cbm_best.cbm")
     from_file = CatBoostClassifier()
     model = from_file.load_model(model_path, format='cbm')
     return model
