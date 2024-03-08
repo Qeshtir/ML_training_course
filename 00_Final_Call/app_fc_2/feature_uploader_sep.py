@@ -9,13 +9,13 @@ from sqlalchemy import create_engine
 """
 
 try:
-    like = pd.read_csv('/00_Final_Call/app_fc_2/like_table_ts.csv')
+    like = pd.read_csv('like_table_ts.csv')
     print(like.shape)
     user = pd.read_csv(
-        '/00_Final_Call/app_fc_2/data_user_fin.csv')
+        'data_user_fin.csv')
     print(user.shape)
     post = pd.read_csv(
-        '/00_Final_Call/app_fc_2/data_post_fin.csv')
+        'data_post_fin.csv')
     print(post.shape)
 except Exception as e:
     print(e)
